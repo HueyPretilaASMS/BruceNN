@@ -10,6 +10,11 @@ namespace BruceNN.FrontEnd
     {
         static void Main(string[] args)
         {
+            while (true) { 
+                Console.Write(">");
+                var cmd = Console.ReadLine();
+                MiniNN.EthicalEngine.Init(cmd);
+            }
         }
     }
 }
