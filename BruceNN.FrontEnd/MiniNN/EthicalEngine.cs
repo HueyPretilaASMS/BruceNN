@@ -11,6 +11,8 @@ using System;
 using Encog.Neural.Networks.Training;
 using Encog.ML;
 using Encog.Neural.Networks.Training.Propagation.Back;
+using Encog.Neural.Networks.Training.Anneal;
+using Encog.ML.Train.Strategy;
 
 namespace BruceNN.FrontEnd.MiniNN
 {
@@ -18,6 +20,7 @@ namespace BruceNN.FrontEnd.MiniNN
 
     public class SimulationScore : ICalculateScore
     {
+        public int scorePub;
         // Test subjects
         public static double[][] value = {
             new double[17] {1,30,0,1,9,1,0,1,1,1,1,0,0,1,0,1,1
@@ -125,27 +128,46 @@ namespace BruceNN.FrontEnd.MiniNN
         public double CalculateScore(IMLMethod network)
         {
             int score = 0;
+            int A = 300, B = 300, AB = 300, O = 300;
             // Simulation Loop
-            foreach (double[] boop in value)
+            foreach (double[] lol in value)
             {
-                double[][] input = {boop};
+                double[] lol1 = new double[] { lol[0],
+                    lol[1], lol[2], lol[3], lol[4],
+                    lol[5], lol[6], lol[7], lol[8],
+                    lol[9], lol[10], lol[11], lol[12],
+                    lol[13], lol[14], lol[15], lol[16], A, B, AB, O };
+
+                double[][] input = { lol1 };
+
                 INeuralDataSet inDat = new BasicNeuralDataSet(input, value);
                 foreach (IMLDataPair pair2 in inDat)
                 {
-                    IMLData output = EthicalEngine.NN.Compute(pair2.Input);
-                    Console.WriteLine(pair2.Input[0] + @"," + pair2.Input[1]
-                                      + @", answer=" + output[0]);
-                    Console.WriteLine("provideCure> " + output[0]);
 
-                    if ((int)output[0] == 0)
+                    IMLData output = EthicalEngine.NN.Compute(pair2.Input);
+                    //Console.WriteLine(pair2.Input[0] + @"," + pair2.Input[1]
+                    //                  + @", answer=" + output[0]);
+                    //Console.WriteLine("provideCure> " + output[0]);
+                    
+
+                    if ((int)output[0] == 1 && (A <= 0)==false && (int)lol[0] == 1)
                     {
-                        score -= 20;
+                        score += CalculatePoints(lol1);
                     } else
                     {
-                        score += CalculatePoints(boop);
+                        score -= CalculatePoints(lol1);
+                        A -= 10;
                     }
+                    
+                    lol1[17] = (double)A;
+                    lol1[18] = (double)B;
+                    lol1[19] = (double)AB;
+                    lol1[20] = (double)O;
                 }
             }
+            Console.WriteLine(score);
+
+            scorePub = score;
             return score;
         }
 
@@ -186,6 +208,7 @@ namespace BruceNN.FrontEnd.MiniNN
                 total += (int)lol2;
             }
 
+
             return total;
         }
 
@@ -202,7 +225,9 @@ namespace BruceNN.FrontEnd.MiniNN
 
     public class EthicalEngine
     {
+        public static int Error = 0, Epoch = 0;
         public static BasicNetwork NN;
+        public static SimulationScore scoreSim = new SimulationScore();
         #region TRAINING VALUES
         // The CSV data is stored here
         // Ebola | Age | BloodTy | Fever | PainInt | PainLoc | Diarrhea | HemmExt | HemmInt | Dehyd | Fatigue | ExSweat | Appetite | H/Ache | S/Throat | Mental | Gender
@@ -413,7 +438,17 @@ namespace BruceNN.FrontEnd.MiniNN
         };
         #endregion
 
-        public static void Init (string CSVFile)
+        public static void InitGen()
+        {
+            Init("Gen");
+        }
+
+        public static void InitBac()
+        {
+            Init("");
+        }
+
+        public static void Init (string TypeT)
         {
             INeuralDataSet trainingSet = new BasicNeuralDataSet(value, value_Ans);
 
@@ -425,26 +460,36 @@ namespace BruceNN.FrontEnd.MiniNN
             network.AddLayer(new BasicLayer(new ActivationSigmoid(), true, 58));
             network.AddLayer(new BasicLayer(new ActivationSigmoid(), true, 58));
             network.AddLayer(new BasicLayer(new ActivationSigmoid(), true, 58));
-            network.AddLayer(new BasicLayer(new ActivationStep(), true, 1));
+            network.AddLayer(new BasicLayer(new ActivationSigmoid(), true, 1));
             network.Structure.FinalizeStructure();
             network.Reset();
+            NN = network;
             
-            IMLTrain trainMain = new MLMethodGeneticAlgorithm(() => {
-                BasicNetwork result = network;
-                ((IMLResettable)result).Reset();
-                return result;
-            }, new SimulationScore(), 10);
+            int epochTrain = 5000;
+            IMLTrain trainMain;
+            IMLTrain trainAlt;
+            if (TypeT == "Gen") { 
+                trainMain = new MLMethodGeneticAlgorithm(() => {
+                    BasicNetwork result = network;
+                    ((IMLResettable)result).Reset();
+                    return result;
+                }, scoreSim, 50);
 
-            //IMLTrain trainMain = new Backpropagation(network, trainingSet, 0.0001, 0.01);
+                epochTrain = 5000;
+            } else {
+                trainMain = new Backpropagation(network, trainingSet, 0.0001, 0.01);
+                epochTrain = 10000;
+            }
 
             int epoch = 0;
             do
             {
                 trainMain.Iteration();
                 Console.WriteLine("Epoch #" + epoch + " Error:" + trainMain.Error);
-                NN = network;
+                Error = (int)scoreSim.scorePub;
+                Epoch = epoch;
                 epoch++;
-            } while ((epoch < 50) && (trainMain.Error > 0.001));
+            } while ((epoch < epochTrain)/* && (trainAlt.Error > 0.01)*/);
 
             Console.WriteLine("Neural Network Results:");
             foreach (IMLDataPair pair in trainingSet)
