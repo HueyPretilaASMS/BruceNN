@@ -138,31 +138,31 @@ namespace BruceNN.FrontEnd.MiniNN
                     lol[9], lol[10], lol[11], lol[12],
                     lol[13], lol[14], lol[15], lol[16], A, B, AB, O };
 
+                lol1[17] = (double)A;
+                lol1[18] = (double)B;
+                lol1[19] = (double)AB;
+                lol1[20] = (double)O;
+
                 double[][] input = { lol1 };
 
                 INeuralDataSet inDat = new BasicNeuralDataSet(input, value);
-                foreach (IMLDataPair pair2 in inDat)
-                {
 
-                    IMLData output = EthicalEngine.NN.Compute(pair2.Input);
-                    //Console.WriteLine(pair2.Input[0] + @"," + pair2.Input[1]
-                    //                  + @", answer=" + output[0]);
-                    //Console.WriteLine("provideCure> " + output[0]);
+                IMLData output = EthicalEngine.NN.Compute(inDat[0].Input);
+                //Console.WriteLine(pair2.Input[0] + @"," + pair2.Input[1]
+                //                  + @", answer=" + output[0]);
+                //Console.WriteLine("provideCure> " + output[0]);
                     
-
-                    if ((int)output[0] == 1 && (A <= 0)==false && (int)lol[0] == 1)
+                if ((int)output[0] == 1 && (A <= 0) == false)
+                {
+                    A -= 10;
+                    if ((int)lol1[0] == 1)
                     {
                         score += CalculatePoints(lol1);
-                    } else
+                    }
+                    else
                     {
                         score -= CalculatePoints(lol1);
-                        A -= 10;
                     }
-                    
-                    lol1[17] = (double)A;
-                    lol1[18] = (double)B;
-                    lol1[19] = (double)AB;
-                    lol1[20] = (double)O;
                 }
             }
             Console.WriteLine(score);
@@ -489,6 +489,10 @@ namespace BruceNN.FrontEnd.MiniNN
                 Error = (int)scoreSim.scorePub;
                 Epoch = epoch;
                 epoch++;
+                if (Program.doStop == true) { 
+                    Program.acceptInput = false;
+                    break;
+                }
             } while ((epoch < epochTrain)/* && (trainAlt.Error > 0.01)*/);
 
             Console.WriteLine("Neural Network Results:");
