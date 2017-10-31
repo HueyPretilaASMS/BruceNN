@@ -22,24 +22,25 @@ namespace BruceNN.FrontEnd
                 if (acceptInput == true) {
                     Console.Write(">");
                     var cmd = Console.ReadLine();
+
                     if (cmd == "Stop") {
                         doStop = true;
-                    } else if (cmd == "Save") {
+                    } else if (cmd == "Save"){
                         EncogDirectoryPersistence.SaveObject(new System.IO.FileInfo("network.txt"), MiniNN.EthicalEngine.NN);
-                    }
-                    else if (cmd == "Load")
-                    {
+                    } else if (cmd == "Load"){
+                        #region Loading the old NN
                         BasicNetwork network = (BasicNetwork)EncogDirectoryPersistence.LoadObject(new System.IO.FileInfo("network.txt"));
 
+                        #region Obtain Input
                         Console.Write("FirstName> ");
                         var fahs = Console.ReadLine();
 
-                        Console.Write("Age> ");
+                        Console.Write("contractedEbola> ");
                         var agePatient = Console.ReadLine();
                         double ageP;
                         Double.TryParse(agePatient, out ageP);
 
-                        Console.Write("contractedEbola> ");
+                        Console.Write("Age> ");
                         var hasEbola = Console.ReadLine();
                         double hasE;
                         Double.TryParse(hasEbola, out hasE);
@@ -120,6 +121,7 @@ namespace BruceNN.FrontEnd
                         Double.TryParse(gender, out gen);
 
                         // Ebola | Age | BloodTy | Fever | PainInt | PainLoc | Diarrhea | HemmExt | HemmInt | Dehyd | Fatigue | ExSweat | Appetite | H/Ache | S/Throat | Mental | Gender
+#endregion
 
                         double[][] input = {
             new double[17] { ageP, hasE, bloodT, fev, painI, painL, dia, exBlee, inBlee, deh, fa, exSw, loApp, head, sTh, men, gen} };
@@ -132,15 +134,29 @@ namespace BruceNN.FrontEnd
                                               + @", answer=" + output[0]);
                             Console.WriteLine("provideCure> " + output[0]);
                         }
+#endregion
                     } else if (cmd == "TrainGen"){
-                        if (acceptInput == true)
-                        {
-                            Thread trd = new Thread(new ThreadStart(MiniNN.EthicalEngine.InitGen))
+                        #region Generic Algorithm entrypoint w/ Multithread
+                            if (acceptInput == true)
                             {
-                                IsBackground = true
-                            };
-                            trd.Start();
-                        }
+                                Thread trd = new Thread(new ThreadStart(MiniNN.EthicalEngine.InitGen))
+                                {
+                                    IsBackground = true
+                                };
+                                trd.Start();
+                            }
+                        #endregion
+                    } else if (cmd == "TrainBac") {
+                        #region Backpropagation entrypoint w/ Multithread
+                            if (acceptInput == true)
+                            {
+                                Thread trd = new Thread(new ThreadStart(MiniNN.EthicalEngine.InitBac))
+                                {
+                                    IsBackground = true
+                                };
+                                trd.Start();
+                            }
+                        #endregion
                     }
                 }
             }
