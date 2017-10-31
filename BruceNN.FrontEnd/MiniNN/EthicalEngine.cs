@@ -124,15 +124,117 @@ namespace BruceNN.FrontEnd.MiniNN
 }, new double[17] {0,75,1,0,4,4,0,0,0,1,1,0,0,1,1,0,0
 }, new double[17] {0,24,3,0,8,1,1,1,0,0,1,1,1,1,1,0,1}
         };
+        public static double[][] value_Ans = {new double[1] {1
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {1
+}, new double[1] {0
+}, new double[1] {0
+}, new double[1] {0
+}
+        };
 
         public double CalculateScore(IMLMethod network)
         {
             int score = 0;
             int A = 300, B = 300, AB = 300, O = 300;
             // Simulation Loop
-            foreach (double[] lol in value)
+            foreach (double[] lol in value_Ans)
             {
-                double[] lol1 = new double[] { lol[0],
+                /*double[] lol1 = new double[] { lol[0],
                     lol[1], lol[2], lol[3], lol[4],
                     lol[5], lol[6], lol[7], lol[8],
                     lol[9], lol[10], lol[11], lol[12],
@@ -141,7 +243,10 @@ namespace BruceNN.FrontEnd.MiniNN
                 lol1[17] = (double)A;
                 lol1[18] = (double)B;
                 lol1[19] = (double)AB;
-                lol1[20] = (double)O;
+                lol1[20] = (double)O;*/
+
+                double[] lol1 = new double[] { lol[0]*100,
+                    (double)A, (double)B, (double)AB, (double)O };
 
                 double[][] input = { lol1 };
 
@@ -200,7 +305,8 @@ namespace BruceNN.FrontEnd.MiniNN
 
             int painInt = 10 - (int)lol[3];
 
-            lol1 = new double[] { lol[0], (double)agePoint, lol[2], (double)painInt, lol[4], lol[5], lol[6], lol[7], lol[8], lol[9], lol[10], lol[11], lol[12], lol[13], lol[14], lol[15], lol[16]};
+            //lol1 = new double[] { lol[0], (double)agePoint, lol[2], (double)painInt, lol[4], lol[5], lol[6], lol[7], lol[8], lol[9], lol[10], lol[11], lol[12], lol[13], lol[14], lol[15], lol[16]};
+            lol1 = new double[] { lol[0], (double)agePoint, lol[2], (double)painInt, lol[4] };
 
             int total = 0;
             foreach (double lol2 in lol1)
@@ -450,12 +556,12 @@ namespace BruceNN.FrontEnd.MiniNN
 
         public static void Init (string TypeT)
         {
-            INeuralDataSet trainingSet = new BasicNeuralDataSet(value, value_Ans);
+            INeuralDataSet trainingSet = new BasicNeuralDataSet(value_Ans, value_Ans);
 
             //TODO: Rewrite
             BasicNetwork network = new BasicNetwork();
 
-            network.AddLayer(new BasicLayer(new ActivationSigmoid(), true, 17));
+            network.AddLayer(new BasicLayer(new ActivationSigmoid(), true, 5));
             network.AddLayer(new BasicLayer(new ActivationSigmoid(), true, 58));
             network.AddLayer(new BasicLayer(new ActivationSigmoid(), true, 58));
             network.AddLayer(new BasicLayer(new ActivationSigmoid(), true, 58));
