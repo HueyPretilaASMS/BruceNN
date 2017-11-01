@@ -4140,6 +4140,10 @@ namespace BruceNN.FrontEnd.MiniNN
 
         public static void Init (string TypeT)
         {
+            Console.WriteLine("EPOCH?");
+            int ep = 200;
+            int.TryParse(Console.ReadLine(), out ep);
+
             // Defining predefined trainingsets
             INeuralDataSet trainingSet = new BasicNeuralDataSet(value_Ans, value_Ans);
 
@@ -4178,7 +4182,9 @@ namespace BruceNN.FrontEnd.MiniNN
                     epochTrain = 10000;
                 }
             #endregion
-
+			
+            Console.WriteLine("END DEFINITION");
+			
             #region Training epoch
                 int epoch = 0;
                 do
@@ -4187,6 +4193,8 @@ namespace BruceNN.FrontEnd.MiniNN
                     Console.WriteLine("Epoch #" + epoch + " Error:" + trainMain.Error);
                     Error = (int)scoreSim.scorePub;
                     Epoch = epoch;
+					if (epoch == ep)
+						break;
                     epoch++;
                 } while (Program.doStop == false);
             #endregion
