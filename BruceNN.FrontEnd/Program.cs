@@ -1,14 +1,13 @@
-﻿using Encog.ML.Data;
+﻿using Encog.Engine.Network.Activation;
+using Encog.ML.Data;
 using Encog.Neural.Data.Basic;
 using Encog.Neural.Networks;
+using Encog.Neural.Networks.Layers;
 using Encog.Neural.NeuralData;
 using Encog.Persist;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Speech.Synthesis;
 
 namespace BruceNN.FrontEnd
 {
@@ -30,98 +29,93 @@ namespace BruceNN.FrontEnd
                     } else if (cmd == "Load"){
                         #region Loading the old NN
                         BasicNetwork network = (BasicNetwork)EncogDirectoryPersistence.LoadObject(new System.IO.FileInfo("network.txt"));
+                        network.AddLayer(new BasicLayer(new ActivationStep(), true, 1));
 
-                        #region Obtain Input
-                        Console.Write("FirstName> ");
-                        var fahs = Console.ReadLine();
+                        double ageP, hasE, bloodT, fev, painI, painL, dia, exBlee, inBlee, deh, fa, exSw, loApp, head, sTh, men, gen;
 
-                        Console.Write("contractedEbola> ");
-                        var agePatient = Console.ReadLine();
-                        double ageP;
-                        Double.TryParse(agePatient, out ageP);
+                        #region Speech
+                        using (SpeechSynthesizer synth = new SpeechSynthesizer())
+                        {
+                            #region Obtain Input
+                            Console.Write("FirstName> ");
+                            var fahs = Console.ReadLine();
 
-                        Console.Write("Age> ");
-                        var hasEbola = Console.ReadLine();
-                        double hasE;
-                        Double.TryParse(hasEbola, out hasE);
+                            Console.Write("contractedEbola> ");
+                            var agePatient = Console.ReadLine();
+                            Double.TryParse(agePatient, out ageP);
 
-                        Console.Write("Blood Type> ");
-                        var bloodTy = Console.ReadLine();
-                        double bloodT;
-                        Double.TryParse(bloodTy, out bloodT);
+                            Console.Write("Age> ");
+                            var hasEbola = Console.ReadLine();
+                            Double.TryParse(hasEbola, out hasE);
 
-                        Console.Write("Fever> ");
-                        var fever = Console.ReadLine();
-                        double fev;
-                        Double.TryParse(fever, out fev);
+                            Console.Write("Blood Type> ");
+                            var bloodTy = Console.ReadLine();
+                            Double.TryParse(bloodTy, out bloodT);
 
-                        Console.Write("Pain Intensity> ");
-                        var painInt = Console.ReadLine();
-                        double painI;
-                        Double.TryParse(painInt, out painI);
+                            Console.Write("Fever> ");
+                            var fever = Console.ReadLine();
+                            Double.TryParse(fever, out fev);
 
-                        Console.Write("Pain Location> ");
-                        var painLoc = Console.ReadLine();
-                        double painL;
-                        Double.TryParse(painLoc, out painL);
+                            Console.Write("Pain Intensity> ");
+                            var painInt = Console.ReadLine();
+                            Double.TryParse(painInt, out painI);
 
-                        Console.Write("Diarrhea> ");
-                        var diarrhea = Console.ReadLine();
-                        double dia;
-                        Double.TryParse(diarrhea, out dia);
+                            Console.Write("Pain Location> ");
+                            var painLoc = Console.ReadLine();
+                            Double.TryParse(painLoc, out painL);
 
-                        Console.Write("External Bleeding> ");
-                        var exBleeding = Console.ReadLine();
-                        double exBlee;
-                        Double.TryParse(exBleeding, out exBlee);
+                            Console.Write("Diarrhea> ");
+                            var diarrhea = Console.ReadLine();
+                            Double.TryParse(diarrhea, out dia);
 
-                        Console.Write("Internal Bleeding> ");
-                        var inBleeding = Console.ReadLine();
-                        double inBlee;
-                        Double.TryParse(inBleeding, out inBlee);
+                            Console.Write("External Bleeding> ");
+                            var exBleeding = Console.ReadLine();
+                            Double.TryParse(exBleeding, out exBlee);
 
-                        Console.Write("Dehydration> ");
-                        var Dehydration = Console.ReadLine();
-                        double deh;
-                        Double.TryParse(Dehydration, out deh);
+                            Console.Write("Internal Bleeding> ");
+                            var inBleeding = Console.ReadLine();
+                            Double.TryParse(inBleeding, out inBlee);
 
-                        Console.Write("Fatigue> ");
-                        var fat = Console.ReadLine();
-                        double fa;
-                        Double.TryParse(fat, out fa);
+                            Console.Write("Dehydration> ");
+                            var Dehydration = Console.ReadLine();
+                            Double.TryParse(Dehydration, out deh);
 
-                        Console.Write("Excess Sweating> ");
-                        var exSweating = Console.ReadLine();
-                        double exSw;
-                        Double.TryParse(exSweating, out exSw);
+                            Console.Write("Fatigue> ");
+                            var fat = Console.ReadLine();
+                            Double.TryParse(fat, out fa);
 
-                        Console.Write("Loss of Appetite> ");
-                        var loAppetite = Console.ReadLine();
-                        double loApp;
-                        Double.TryParse(loAppetite, out loApp);
+                            Console.Write("Excess Sweating> ");
+                            var exSweating = Console.ReadLine();
+                            Double.TryParse(exSweating, out exSw);
 
-                        Console.Write("Headache> ");
-                        var headAche = Console.ReadLine();
-                        double head;
-                        Double.TryParse(headAche, out head);
+                            Console.Write("Loss of Appetite> ");
+                            var loAppetite = Console.ReadLine();
+                            Double.TryParse(loAppetite, out loApp);
 
-                        Console.Write("Sore Throat> ");
-                        var sThroat = Console.ReadLine();
-                        double sTh;
-                        Double.TryParse(sThroat, out sTh);
+                            Console.Write("Headache> ");
+                            var headAche = Console.ReadLine();
+                            Double.TryParse(headAche, out head);
 
-                        Console.Write("Mental> ");
-                        var mental = Console.ReadLine();
-                        double men;
-                        Double.TryParse(mental, out men);
+                            Console.Write("Sore Throat> ");
+                            var sThroat = Console.ReadLine();
+                            Double.TryParse(sThroat, out sTh);
 
-                        Console.Write("Gender> ");
-                        var gender = Console.ReadLine();
-                        double gen;
-                        Double.TryParse(gender, out gen);
+                            Console.Write("Mental> ");
+                            var mental = Console.ReadLine();
+                            Double.TryParse(mental, out men);
 
-                        // Ebola | Age | BloodTy | Fever | PainInt | PainLoc | Diarrhea | HemmExt | HemmInt | Dehyd | Fatigue | ExSweat | Appetite | H/Ache | S/Throat | Mental | Gender
-#endregion
+                            Console.Write("Gender> ");
+                            var gender = Console.ReadLine();
+                            Double.TryParse(gender, out gen);
+
+                            // Ebola | Age | BloodTy | Fever | PainInt | PainLoc | Diarrhea | HemmExt | HemmInt | Dehyd | Fatigue | ExSweat | Appetite | H/Ache | S/Throat | Mental | Gender
+                            #endregion
+
+                            synth.SelectVoice("Microsoft Zira Desktop");
+
+                            synth.Speak("Thank you. I'll get to you shortly.");
+                        }
+                        #endregion
 
                         double[][] input = {
             new double[17] { ageP, hasE, bloodT, fev, painI, painL, dia, exBlee, inBlee, deh, fa, exSw, loApp, head, sTh, men, gen} };
@@ -133,6 +127,29 @@ namespace BruceNN.FrontEnd
                             Console.WriteLine(pair2.Input[0] + @"," + pair2.Input[1]
                                               + @", answer=" + output[0]);
                             Console.WriteLine("provideCure> " + output[0]);
+
+                            #region Speech
+                            using (SpeechSynthesizer synth = new SpeechSynthesizer())
+                            {
+                                // Output information about all of the installed voices. 
+                                VoiceInfo info;
+                                Console.WriteLine("Installed voices -");
+                                foreach (InstalledVoice voice in synth.GetInstalledVoices())
+                                {
+                                    info = voice.VoiceInfo;
+                                    Console.WriteLine(" Voice Name: " + info.Name);
+                                }
+
+                                synth.SelectVoice("Microsoft Zira Desktop");
+
+                                if (output[0] == 1) { 
+                                    synth.Speak("I can treat you.");
+                                } else
+                                {
+                                    synth.Speak("I can't treat you.");
+                                }
+                            }
+                            #endregion
                         }
 #endregion
                     } else if (cmd == "TrainGen"){
