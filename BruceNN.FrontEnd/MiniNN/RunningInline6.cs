@@ -8,7 +8,9 @@ using Encog.Persist;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Speech.Recognition;
 using System.Speech.Synthesis;
 using System.Text;
 using System.Threading;
@@ -31,47 +33,47 @@ namespace BruceNN.FrontEnd.MiniNN
             var fahs = Console.ReadLine();
 
             Console.Write("contractedEbola> ");
-            var agePatient = Console.ReadLine();
+            var agePatient = Listen().ToString(); //Console.ReadLine();
             Double.TryParse(agePatient, out ageP);
 
             Console.Write("Age> ");
-            var hasEbola = Console.ReadLine();
+            var hasEbola = Listen().ToString(); //Console.ReadLine();
             Double.TryParse(hasEbola, out hasE);
 
             Console.Write("Blood Type> ");
-            var bloodTy = Console.ReadLine();
+            var bloodTy = Listen().ToString(); //Console.ReadLine();
             Double.TryParse(bloodTy, out bloodT);
 
             Console.Write("Fever> ");
-            var fever = Console.ReadLine();
+            var fever = Listen().ToString(); //Console.ReadLine();
             Double.TryParse(fever, out fev);
 
             Console.Write("Pain Intensity> ");
-            var painInt = Console.ReadLine();
+            var painInt = Listen().ToString(); //Console.ReadLine();
             Double.TryParse(painInt, out painI);
 
             Console.Write("Pain Location> ");
-            var painLoc = Console.ReadLine();
+            var painLoc = Listen().ToString(); //Console.ReadLine();
             Double.TryParse(painLoc, out painL);
 
             Console.Write("Diarrhea> ");
-            var diarrhea = Console.ReadLine();
+            var diarrhea = Listen().ToString(); //Console.ReadLine();
             Double.TryParse(diarrhea, out dia);
 
             Console.Write("External Bleeding> ");
-            var exBleeding = Console.ReadLine();
+            var exBleeding = Listen().ToString(); //Console.ReadLine();
             Double.TryParse(exBleeding, out exBlee);
 
             Console.Write("Internal Bleeding> ");
-            var inBleeding = Console.ReadLine();
+            var inBleeding = Listen().ToString(); //Console.ReadLine();
             Double.TryParse(inBleeding, out inBlee);
 
             Console.Write("Dehydration> ");
-            var Dehydration = Console.ReadLine();
+            var Dehydration = Listen().ToString(); //Console.ReadLine();
             Double.TryParse(Dehydration, out deh);
 
             Console.Write("Fatigue> ");
-            var fat = Console.ReadLine();
+            var fat = Listen().ToString(); //Console.ReadLine();
             Double.TryParse(fat, out fa);
 
             Console.Write("Excess Sweating> ");
@@ -129,75 +131,132 @@ namespace BruceNN.FrontEnd.MiniNN
             using (SpeechSynthesizer synth = new SpeechSynthesizer())
             {
                 synth.SelectVoice("Microsoft Zira Desktop");
-                synth.Speak("I can treat you.");
+                synth.Speak(Speech);
 
                 synth.Dispose();
             }
         }
 
         #region Separate Thread
-        public static string YesOrNo;
+        public static int YesOrNo;
+		static bool completed, finished;
         public static bool Listening = false;
 
-        public static void Listen ()
+        public static int Listen ()
         {
+            Listening = true;
+            finished = false;
             Thread trd = new Thread(new ThreadStart(ListenThread))
             {
                 IsBackground = true
             };
             trd.Start();
+            ListenThread();
 
-            Console.WriteLine("Press return to end recording");
-            Console.ReadLine();
             Listening = false;
+            return YesOrNo;
         }
-
-        public static WaveIn waveSource = null;
-        public static WaveFileWriter waveFile = null;
 
         static void ListenThread()
         {
-            waveSource = new WaveIn();
-            waveSource.WaveFormat = new WaveFormat(44100, 1);
-
-            waveSource.DataAvailable += new EventHandler<WaveInEventArgs>(waveSource_DataAvailable);
-            waveSource.RecordingStopped += new EventHandler<StoppedEventArgs>(waveSource_RecordingStopped);
-
-            waveFile = new WaveFileWriter("dead.wav", waveSource.WaveFormat);
-
-            waveSource.StartRecording();
-
-            Listening = true;
-
-            while (Listening == true)
-            { }
-
-            waveSource.StopRecording();
-        }
-
-        static void waveSource_DataAvailable(object sender, WaveInEventArgs e)
-        {
-            if (waveFile != null)
+            /*using (SpeechRecognitionEngine listen = new SpeechRecognitionEngine())
             {
-                waveFile.Write(e.Buffer, 0, e.BytesRecorded);
-                waveFile.Flush();
+                listen.SetInputToDefaultAudioDevice();
+
+                //Possible choices given then loaded into a grammarbuilder
+                Choices inPos = new Choices();
+                GrammarBuilder gramBuil = new GrammarBuilder();
+                inPos.Add(new string[] { "yes", "no" });
+                gramBuil.Append(inPos);
+
+                //Load the grammar
+                listen.LoadGrammar(new Grammar(gramBuil));
+
+                listen.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(foundText);
+
+                listen.Recognize();
+            }*/
+
+            using (SpeechRecognitionEngine recognizer = new SpeechRecognitionEngine())
+            {
+                // Create and load the exit grammar.
+                Grammar exitGrammar = new Grammar(new GrammarBuilder("exit"));
+                exitGrammar.Name = "Exit Grammar";
+                recognizer.LoadGrammar(exitGrammar);
+
+                // Create and load the dictation grammar.
+                Grammar dictation = new DictationGrammar();
+                dictation.Name = "Dictation Grammar";
+                recognizer.LoadGrammar(dictation);
+
+                // Attach event handlers to the recognizer.
+                recognizer.SpeechRecognized +=
+                  new EventHandler<SpeechRecognizedEventArgs>(
+                    SpeechRecognizedHandler);
+                recognizer.RecognizeCompleted +=
+                  new EventHandler<RecognizeCompletedEventArgs>(
+                    RecognizeCompletedHandler);
+
+                // Assign input to the recognizer.
+                recognizer.SetInputToDefaultAudioDevice();
+
+                // Begin asynchronous recognition.
+                Console.WriteLine("Starting recognition...");
+                completed = false;
+                recognizer.RecognizeAsync(RecognizeMode.Multiple);
+
+                // Wait for recognition to finish.
+                while (!completed)
+                {
+                    Thread.Sleep(333);
+                }
+
+                if (!finished)
+                    ListenThread();
+                Console.WriteLine("Done.");
             }
         }
 
-        static void waveSource_RecordingStopped(object sender, StoppedEventArgs e)
-        {
-            if (waveSource != null)
-            {
-                waveSource.Dispose();
-                waveSource = null;
-            }
+		static void SpeechRecognizedHandler(object sender, SpeechRecognizedEventArgs e)
+		{
+		    Console.WriteLine("  Speech recognized:");
+		    string grammarName = "<not available>";
+		    if (e.Result.Grammar.Name != null && !e.Result.Grammar.Name.Equals(string.Empty))
+		    {
+			    grammarName = e.Result.Grammar.Name;
+		    }
+		    Console.WriteLine("    {0,-17} - {1}",
+			grammarName, e.Result.Text);
 
-            if (waveFile != null)
+		    if (grammarName.ToLower().Equals("yes"))
+		    {
+                YesOrNo = 1;
+			    ((SpeechRecognitionEngine)sender).RecognizeAsyncCancel();
+                Console.WriteLine("Yes.");
+                completed = true;
+                finished = true;
+            } else if (grammarName.ToLower().Equals("no"))
             {
-                waveFile.Dispose();
-                waveFile = null;
+                YesOrNo = 0;
+                Console.WriteLine("No.");
+                ((SpeechRecognitionEngine)sender).RecognizeAsyncCancel();
+                completed = true;
+                finished = true;
+            } else if (grammarName.ToLower().Equals("yeah"))
+            {
+                YesOrNo = 0;
+                Console.WriteLine("Yes.");
+                ((SpeechRecognitionEngine)sender).RecognizeAsyncCancel();
+                completed = true;
+                finished = true;
             }
         }
+
+		static void RecognizeCompletedHandler(object sender, RecognizeCompletedEventArgs e)
+		{
+		      Console.WriteLine("  Recognition thread completed.");
+		      completed = true;
+		}
         #endregion
     }
 }
