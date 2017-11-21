@@ -7,7 +7,6 @@ using Encog.Neural.NeuralData;
 using Encog.Persist;
 using System;
 using System.Threading;
-using System.Speech.Synthesis;
 
 namespace BruceNN.FrontEnd
 {
@@ -27,10 +26,8 @@ namespace BruceNN.FrontEnd
                     } else if (cmd == "Save"){
                         EncogDirectoryPersistence.SaveObject(new System.IO.FileInfo("network.txt"), MiniNN.EthicalEngine.NN);
                     } else if (cmd == "Load"){
-                        MiniNN.RunningInline6.runNeuralNetwork();
-
                         #region Loading the old NN
-                        /*BasicNetwork network = (BasicNetwork)EncogDirectoryPersistence.LoadObject(new System.IO.FileInfo("network.txt"));
+                        /*/*BasicNetwork network = (BasicNetwork)EncogDirectoryPersistence.LoadObject(new System.IO.FileInfo("network.txt"));
                         network.AddLayer(new BasicLayer(new ActivationStep(), true, 1));
 
                         double ageP, hasE, bloodT, fev, painI, painL, dia, exBlee, inBlee, deh, fa, exSw, loApp, head, sTh, men, gen;
@@ -152,8 +149,8 @@ namespace BruceNN.FrontEnd
                                 }
                             }
                             #endregion
-                        }*/
-                        #endregion
+                        } */
+#endregion
                     }
                     else if (cmd == "TrainGen"){
                         #region Generic Algorithm entrypoint w/ Multithread

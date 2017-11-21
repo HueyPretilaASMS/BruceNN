@@ -20,16 +20,16 @@ namespace BruceNN.FrontEnd.MiniNN
 {
     public class RunningInline6
     {
-        public static void runNeuralNetwork ()
+        public static double runNeuralNetwork (double hasE)
         {
             #region Loading the old NN
             BasicNetwork network = (BasicNetwork)EncogDirectoryPersistence.LoadObject(new System.IO.FileInfo("network.txt"));
             network.AddLayer(new BasicLayer(new ActivationStep(), true, 1));
 
-            double ageP, hasE, bloodT, fev, painI, painL, dia, exBlee, inBlee, deh, fa, exSw, loApp, head, sTh, men, gen;
+            //double ageP, hasE, bloodT, fev, painI, painL, dia, exBlee, inBlee, deh, fa, exSw, loApp, head, sTh, men, gen;
 
             #region Obtain Input
-            Console.Write("FirstName> ");
+            /*Console.Write("FirstName> ");
             var fahs = Console.ReadLine();
 
             Console.Write("contractedEbola> ");
@@ -98,32 +98,28 @@ namespace BruceNN.FrontEnd.MiniNN
 
             Console.Write("Gender> ");
             var gender = Console.ReadLine();
-            Double.TryParse(gender, out gen);
+            Double.TryParse(gender, out gen);*/
             #endregion
 
             double[][] input = {
-            new double[17] { ageP, hasE, bloodT, fev, painI, painL, dia, exBlee, inBlee, deh, fa, exSw, loApp, head, sTh, men, gen} };
+                //new double[17] { ageP, hasE, bloodT, fev, painI, painL, dia, exBlee, inBlee, deh, fa, exSw, loApp, head, sTh, men, gen} 
+                new double[1] {hasE}
+            };
 
             INeuralDataSet inDat = new BasicNeuralDataSet(input, new double[][] { new double[0] });
+            double TrueOutput = 0;
             foreach (IMLDataPair pair2 in inDat)
             {
                 IMLData output = network.Compute(pair2.Input);
-                Console.WriteLine(pair2.Input[0] + @"," + pair2.Input[1]
+                Console.WriteLine(pair2.Input[0] + @"," /*pair2.Input[1]*/
                                   + @", answer=" + output[0]);
                 Console.WriteLine("provideCure> " + output[0]);
 
-                #region Speech
-                if (output[0] == 1)
-                {
-                    Speak("I can treat you.");
-                }
-                else
-                {
-                    Speak("I can't treat you.");
-                }
-                #endregion
+                TrueOutput = output[0];
             }
+            return TrueOutput;
             #endregion
+
         }
 
         public static void Speak (string Speech)
